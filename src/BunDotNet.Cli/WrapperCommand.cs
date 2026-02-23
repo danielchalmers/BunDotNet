@@ -42,14 +42,20 @@ public class WrapperCommand : AsyncCommand<WrapperCommand.Settings>
         CancellationToken cancellationToken
     )
     {
+        var bunArgs = context.Remaining.Raw.ToArray();
+        if (bunArgs.Length > 0 && bunArgs[0] == "--")
+        {
+            bunArgs = bunArgs[1..];
+        }
+
         if (!settings.Silent)
         {
             AnsiConsole.Write(new FigletText("BunDotNet").Color(Color.DarkCyan));
         }
 
         if (
-            context.Remaining.Raw.Any()
-            && context.Remaining.Raw[0].Equals("upgrade", StringComparison.InvariantCultureIgnoreCase)
+            bunArgs.Length > 0
+            && bunArgs[0].Equals("upgrade", StringComparison.InvariantCultureIgnoreCase)
         )
         {
             Console.WriteLine("The 'bun upgrade' command is not supported when using the BunDotNet wrapper.");
@@ -75,7 +81,7 @@ public class WrapperCommand : AsyncCommand<WrapperCommand.Settings>
         }
 
         return await runtime.RunAsync(
-            args: context.Remaining.Raw.ToArray(),
+            args: bunArgs,
             workingDirectory: Environment.CurrentDirectory,
             cancellationToken: cancellationToken
         );
